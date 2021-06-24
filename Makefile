@@ -11,7 +11,19 @@ help: ## Show this help.
 setup:
 	apt-get install -y wget patch gcc libssl-dev net-tools liblzo2-dev libpam0g-dev automake
 
-.PHONY: openvpn
+.PHONY: rpm
+rpm: awsvpnclient_amd64.rpm
+
+awsvpnclient_amd64.rpm: .build awsvpnclient_amd64.deb
+	docker run -v $(PWD):/work -w /work alien alien -r awsvpnclient_amd64.deb
+
+.build: Dockerfile
+	docker build -t alien .
+	touch .build
+
+awsvpnclient_amd64.deb:
+	curl --silent https://d20adtppz83p9s.cloudfront.net/GTK/latest/awsvpnclient_amd64.deb -o $@
+
 openvpn: ./openvpn-2.4.9/src/openvpn/openvpn
 
 ./openvpn-2.4.9/bin/openvpn: ./openvpn-2.4.9/Makefile
